@@ -99,11 +99,13 @@ MAV.D_prop = 20*(0.0254);     % prop diameter in m
 
 % Motor parameters
 MAV.K_V = 145;                    % from datasheet RPM/V
+MAV.KQ = (1/MAV.K_V)*60/(2*pi);   % KQ in N-m/A, V-s/rad
 MAV.R_motor = 0.042;              % ohms
 MAV.i0 = 1.5;                     % no-load (zero-torque) current (A)
 
 % Inputs
 MAV.ncells = 12;
+MAV.V_max = 3.7*MAV.ncells;       % max voltage for specified number of battery cells
 
 % Coeffiecients from prop_data fit
 MAV.C_Q2 = -0.01664;

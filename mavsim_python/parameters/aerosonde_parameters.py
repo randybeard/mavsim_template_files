@@ -99,11 +99,14 @@ D_prop = 20*(0.0254)     # prop diameter in m
 
 # Motor parameters
 K_V = 145.                   # from datasheet RPM/V
+KQ = (1. / K_V) * 60. / (2. * np.pi)  # KQ in N-m/A, V-s/rad
 R_motor = 0.042              # ohms
 i0 = 1.5                     # no-load (zero-torque) current (A)
 
+
 # Inputs
 ncells = 12.
+V_max = 3.7 * ncells  # max voltage for specified number of battery cells
 
 # Coeffiecients from prop_data fit
 C_Q2 = -0.01664
