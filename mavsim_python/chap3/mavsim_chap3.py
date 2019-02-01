@@ -32,6 +32,7 @@ if VIDEO:
                          output_rate=SIM.ts_video)
 
 
+FM_list = ['fx', 'fy', 'fz', 'l', 'm', 'n']
 # main simulation loop
 for i in range(6):
     # initialize the simulation time
@@ -39,8 +40,10 @@ for i in range(6):
     forces_moments = np.zeros(6)  # fx, fy, fz, l, m, n
     if i < 3:
         val = 100
+        print('***** APPLYING FORCE {} OF {} N *****'.format(FM_list[i], val))
     else:
         val = 0.05
+        print('***** APPLYING MOMENT {} OF {} N-m *****'.format(FM_list[i], val))
     forces_moments[i] = val
     mav.reset_state()
     while sim_time < SIM.end_time:
