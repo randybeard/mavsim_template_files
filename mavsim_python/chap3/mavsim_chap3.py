@@ -9,7 +9,7 @@ sys.path.append('..')
 
 # import viewers and video writer
 from chap2.mav_viewer import mav_viewer
-# from chap2.video_writer import video_writer
+from chap2.video_writer import video_writer
 from chap3.mav_dynamics import mav_dynamics
 from chap3.data_viewer import data_viewer
 
@@ -21,22 +21,23 @@ from message_types.msg_state import msg_state
 from IPython.core.debugger import Pdb
 
 # initialize viewers and video
-VIDEO = False  # True==write video, False==don't write video
+VIDEO = True  # True==write video, False==don't write video
 mav_view = mav_viewer()
 data_view = data_viewer()
 mav = mav_dynamics(SIM.ts_simulation)
 cmd_state = msg_state()
-# if VIDEO == True:
-    # video = video_writer(video_name="chap3_video.avi",
-                         # bounding_box=(0, 0, 1000, 1000),
-                         # output_rate=SIM.ts_video)
+Pdb().set_trace()
+if VIDEO:
+    video = video_writer(video_name="chap3_video.avi",
+                         bounding_box=(0, 0, 1000, 1000),
+                         output_rate=SIM.ts_video)
 
-# initialize the simulation time
-sim_time = SIM.start_time
 
-forces_moments = np.zeros(6)  # fx, fy, fz, l, m, n
 # main simulation loop
 for i in range(6):
+    # initialize the simulation time
+    sim_time = SIM.start_time
+    forces_moments = np.zeros(6)  # fx, fy, fz, l, m, n
     if i < 3:
         val = 100
     else:
@@ -55,7 +56,7 @@ for i in range(6):
                          mav.msg_true_state, # commanded states
                          SIM.ts_simulation)
 
-        if VIDEO == True: video.update(sim_time)
+        if VIDEO: video.update(sim_time)
 
         #-------increment time-------------
         sim_time += SIM.ts_simulation
