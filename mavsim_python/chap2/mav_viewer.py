@@ -4,12 +4,14 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
 
+from IPython.core.debugger import Pdb
+
 class mav_viewer():
     def __init__(self):
         # initialize Qt gui application and window
         self.app = pg.QtGui.QApplication([])  # initialize QT
         self.window = gl.GLViewWidget()  # initialize the view object
-        self.window.setWindowTitle('Spacecraft Viewer')
+        self.window.setWindowTitle('MAV Viewer')
         self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(20, 20, 20) # set the size of the grid (distance between each line)
@@ -173,12 +175,13 @@ class mav_viewer():
         Converts euler angles to rotation matrix (R_b^i, i.e., body to inertial)
         """
         # only call sin and cos once for each angle to speed up rendering
-        c_phi = np.cos(phi)
-        s_phi = np.sin(phi)
-        c_theta = np.cos(theta)
-        s_theta = np.sin(theta)
-        c_psi = np.cos(psi)
-        s_psi = np.sin(psi)
+        # Pdb().set_trace()
+        c_phi = np.cos(phi[0])
+        s_phi = np.sin(phi[0])
+        c_theta = np.cos(theta[0])
+        s_theta = np.sin(theta[0])
+        c_psi = np.cos(psi[0])
+        s_psi = np.sin(psi[0])
 
         R_roll = np.array([[1, 0, 0],
                            [0, c_phi, s_phi],
@@ -189,5 +192,6 @@ class mav_viewer():
         R_yaw = np.array([[c_psi, s_psi, 0],
                           [-s_psi, c_psi, 0],
                           [0, 0, 1]])
+
         R = R_roll @ R_pitch @ R_yaw  # inertial to body (Equation 2.4 in book)
         return R.T  # transpose to return body to inertial

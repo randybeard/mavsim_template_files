@@ -19,6 +19,8 @@ from message_types.msg_state import msg_state
 import parameters.aerosonde_parameters as MAV
 from tools.tools import Quaternion2Euler
 
+from IPython.core.debugger import Pdb
+
 class mav_dynamics:
     def __init__(self, Ts):
         self.ts_simulation = Ts
@@ -108,7 +110,7 @@ class mav_dynamics:
 
         # position dynamics
         vec_pos = np.array([r*v - q*w, p*w - r*u, q*u - p*v])
-        u_dot, v_dot, w_dot = vec_pos @ 1/m * np.array([fx, fy, fz])
+        u_dot, v_dot, w_dot = vec_pos + 1/MAV.mass * np.array([fx, fy, fz])
 
         # rotational kinematics
         mat_rot = np.array([[0, -p, -q, -r],
@@ -136,6 +138,7 @@ class mav_dynamics:
         # collect the derivative of the states
         x_dot = np.array([[pn_dot, pe_dot, pd_dot, u_dot, v_dot, w_dot,
                            e0_dot, e1_dot, e2_dot, e3_dot, p_dot, q_dot, r_dot]]).T
+        # Pdb().set_trace()
         return x_dot
 
     def _update_msg_true_state(self):
