@@ -1,3 +1,4 @@
-*.DS_Store
 *.zip
-*.ppt
+*.pyc
+*__pycache__
+

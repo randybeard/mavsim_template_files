@@ -2,10 +2,10 @@
 mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
-    
+
 part of mavsimPy
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         12/17/2018 - RWB
         1/14/2019 - RWB
 """
@@ -25,8 +25,19 @@ class mav_dynamics:
         # set initial states based on parameter file
         # _state is the 13x1 internal state of the aircraft that is being propagated:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
-        self._state = np.array([
-                                ])
+        self._state = np.array([[MAV.pn0],  # (0)
+                               [MAV.pe0],   # (1)
+                               [MAV.pd0],   # (2)
+                               [MAV.u0],    # (3)
+                               [MAV.v0],    # (4)
+                               [MAV.w0],    # (5)
+                               [MAV.e0],    # (6)
+                               [MAV.e1],    # (7)
+                               [MAV.e2],    # (8)
+                               [MAV.e3],    # (9)
+                               [MAV.p0],    # (10)
+                               [MAV.q0],    # (11)
+                               [MAV.r0]])   # (12)
         self.msg_true_state = msg_state()
 
     ###################################
@@ -34,7 +45,7 @@ class mav_dynamics:
     def update_state(self, forces_moments):
         '''
 
-            Integrate the differential equations defining dynamics. 
+            Integrate the differential equations defining dynamics.
             Inputs are the forces and moments on the aircraft.
             Ts is the time step between function calls.
         '''
@@ -90,25 +101,37 @@ class mav_dynamics:
         n = forces_moments.item(5)
 
         # position kinematics
-        pn_dot =
-        pe_dot =
-        pd_dot =
+        mat_pos = np.array([[e1**2+e0**2-e2**2-e3**2, 2*(e1*e2-e3*e0), 2*(e1*e3+e2*e0)],
+                      [2*(e1*e2+e3*e0), e2**2+e0**2-e1**2-e3**2, 2*(e2*e3-e1*e0)],
+                      [2*(e1*e3-e2*e0), 2*(e2*e3+e1*e0), e3**2+e0**2-e1**2-e2**2]])
+        pn_dot, pe_dot, pd_dot = mat_pos @ np.array([u, v, w])
 
         # position dynamics
-        u_dot =
-        v_dot =
-        w_dot =
+        vec_pos = np.array([r*v - q*w, p*w - r*u, q*u - p*v])
+        u_dot, v_dot, w_dot = vec_pos @ 1/m * np.array([fx, fy, fz])
 
         # rotational kinematics
-        e0_dot =
-        e1_dot =
-        e2_dot =
-        e3_dot =
+        mat_rot = np.array([[0, -p, -q, -r],
+                            [p, 0, r, -q],
+                            [q, -r, 0, p],
+                            [r, q, -p, 0]])
+        e0_dot, e1_dot, e2_dot, e3_dot = 0.5*mat_rot @ np.array([e0,e1,e2,e3])
 
         # rotatonal dynamics
-        p_dot =
-        q_dot =
-        r_dot = 
+        G = MAV.gamma
+        G1 = MAV.gamma1
+        G2 = MAV.gamma2
+        G3 = MAV.gamma3
+        G4 = MAV.gamma4
+        G5 = MAV.gamma5
+        G6 = MAV.gamma6
+        G7 = MAV.gamma7
+        G8 = MAV.gamma8
+
+        vec_rot = np.array([G1*p*q - G2*q*r, G5*p*r - G6*(p**2-r**2), G7*p*q - G1*q*r])
+        vec_rot2 = np.array([G3*l + G4*n, m/MAV.Jy, G4*l + G8*n])
+
+        p_dot, q_dot, r_dot = vec_rot + vec_rot2
 
         # collect the derivative of the states
         x_dot = np.array([[pn_dot, pe_dot, pd_dot, u_dot, v_dot, w_dot,

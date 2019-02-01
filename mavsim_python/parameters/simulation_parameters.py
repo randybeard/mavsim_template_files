@@ -14,5 +14,3 @@ ts_plotting = 0.5  # refresh rate for plots
 ts_video = 0.1  # write rate for video
 
 ts_control = ts_simulation  # sample rate for the controller
-
-

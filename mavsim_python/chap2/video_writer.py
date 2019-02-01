@@ -1,7 +1,7 @@
 """
 mavsimPy: video making function
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         1/10/2019 - RWB
 """
 import numpy as np
@@ -33,5 +33,3 @@ class video_writer():
 
     def close(self):
         self.video.release()
-
-
