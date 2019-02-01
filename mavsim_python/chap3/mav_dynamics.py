@@ -143,7 +143,6 @@ class mav_dynamics:
         # collect the derivative of the states
         x_dot = np.array([[pn_dot, pe_dot, pd_dot, u_dot, v_dot, w_dot,
                            e0_dot, e1_dot, e2_dot, e3_dot, p_dot, q_dot, r_dot]]).T
-        # Pdb().set_trace()
         return x_dot
 
     def _update_msg_true_state(self):

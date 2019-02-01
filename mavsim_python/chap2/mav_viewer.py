@@ -175,7 +175,6 @@ class mav_viewer():
         Converts euler angles to rotation matrix (R_b^i, i.e., body to inertial)
         """
         # only call sin and cos once for each angle to speed up rendering
-        # Pdb().set_trace()
         c_phi = np.cos(phi[0])
         s_phi = np.sin(phi[0])
         c_theta = np.cos(theta[0])
