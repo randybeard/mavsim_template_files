@@ -25,6 +25,13 @@ class mav_dynamics:
     def __init__(self, Ts):
         self.ts_simulation = Ts
         # set initial states based on parameter file
+        self.reset_state()
+        self.msg_true_state = msg_state()
+
+    ###################################
+    # public functions
+
+    def reset_state(self):
         # _state is the 13x1 internal state of the aircraft that is being propagated:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
         self._state = np.array([[MAV.pn0],  # (0)
@@ -40,10 +47,8 @@ class mav_dynamics:
                                [MAV.p0],    # (10)
                                [MAV.q0],    # (11)
                                [MAV.r0]])   # (12)
-        self.msg_true_state = msg_state()
 
-    ###################################
-    # public functions
+
     def update_state(self, forces_moments):
         '''
 
