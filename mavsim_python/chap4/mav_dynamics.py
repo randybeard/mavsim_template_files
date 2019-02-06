@@ -103,6 +103,13 @@ class mav_dynamics:
         :param delta: np.matrix(delta_a, delta_e, delta_r, delta_t)
         :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
         """
+        e0 = self._state[6]
+        ex = self._state[7]
+        ey = self._state[8]
+        ez = self._state[9]
+
+        fg = MAV.mass * 9.81 * np.array([2*(ex*ez - ey*e0), 2*(ey*ez + ex*e0), ez**2 + e0**2 - ex**2 - ey**2])
+        fa = 
         [fx, fy, fz] = fg + fa + fp
         self._forces[0] = fx
         self._forces[1] = fy
