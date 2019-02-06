@@ -10,7 +10,7 @@ from tools.tools import Euler2Quaternion
 pn0 = 0.  # initial north position
 pe0 = 0.  # initial east position
 pd0 = -20.0  # initial down position
-u0 = 0.  # initial velocity along body x-axis
+u0 = 17.  # initial velocity along body x-axis
 v0 = 0.  # initial velocity along body y-axis
 w0 = 0.  # initial velocity along body z-axis
 phi0 = 0.  # initial roll angle
@@ -21,7 +21,7 @@ q0 = 0  # initial pitch rate
 r0 = 0  # initial yaw rate
 Va0 = np.sqrt(u0**2+v0**2+w0**2)
 #   Quaternion State
-e = Euler2Quaternion([phi0, theta0, psi0])
+e = Euler2Quaternion(phi0, theta0, psi0)
 e0 = e.item(0)
 e1 = e.item(1)
 e2 = e.item(2)
@@ -99,11 +99,14 @@ D_prop = 20*(0.0254)     # prop diameter in m
 
 # Motor parameters
 K_V = 145.                   # from datasheet RPM/V
+KQ = (1. / K_V) * 60. / (2. * np.pi)  # KQ in N-m/A, V-s/rad
 R_motor = 0.042              # ohms
 i0 = 1.5                     # no-load (zero-torque) current (A)
 
+
 # Inputs
 ncells = 12.
+V_max = 3.7 * ncells  # max voltage for specified number of battery cells
 
 # Coeffiecients from prop_data fit
 C_Q2 = -0.01664

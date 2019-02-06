@@ -17,9 +17,9 @@ class wind_simulation:
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
         # Could pass current Va into the gust function and recalculate A and B matrices.
         Va = 17
-        self._A =
-        self._B =
-        self._C =
+        self._A = np.array([[1 - Ts*c, -Ts*d], [Ts, 1]])
+        self._B = np.array([[Ts], [0]])
+        self._C = np.array([[a,b]])
         self._gust_state =
         self._Ts = Ts
 
@@ -33,7 +33,6 @@ class wind_simulation:
         # calculate wind gust using Dryden model.  Gust is defined in the body frame
         w = np.random.randn()  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
-        self._gust_state += self._Ts * (self._A @ self._gust_state + self._B * w)
+        self._gust_state += self._A @ self._gust_state + self._B * w
         # output the current gust: y[k] = C x[k]
         return self._C @ self._gust_state
-

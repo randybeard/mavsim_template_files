@@ -1,5 +1,5 @@
 """
-mav_dynamics
+    mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
 
@@ -103,12 +103,33 @@ class mav_dynamics:
         :param delta: np.matrix(delta_a, delta_e, delta_r, delta_t)
         :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
         """
+        delta_a = delta[0]
+        delta_e = delta[1]
+        delta_r = delta[2]
+        delta_t = delta[3]
+
         e0 = self._state[6]
         ex = self._state[7]
         ey = self._state[8]
         ez = self._state[9]
 
-        fg = MAV.mass * 9.81 * np.array([2*(ex*ez - ey*e0), 2*(ey*ez + ex*e0), ez**2 + e0**2 - ex**2 - ey**2])
+        # gravity
+        fg = MAV.mass * 9.8 * np.array([2*(ex*ez - ey*e0), 2*(ey*ez + ex*e0), ez**2 + e0**2 - ex**2 - ey**2])
+
+        # propeller thrust and torque
+        V_in = MAV.V_max * delta_t
+        a = MAV.rho * MAV.D_prop**5 * MAV.C_Q0 / (2*np.pi)**2
+        b = MAV.rho * MAV.D_prop**4 * MAV.C_Q1 * self._Va / (2*np.pi) + MAV.KQ*MAV.K_V/MAV.R_motor
+        c = MAV.rho * MAV.D_prop**3 * MAV.C_Q2 * self._Va**2 - MAV.KQ * V_in / MAV.R_motor + MAV.KQ*MAV.i0
+        Omega_op = (-b + np.sqrt(b**2 - 4*a*c)) / (2*a)
+
+        J_op = 2 * np.pi * self._Va / (Omega_op * MAV.D_prop)
+        C_T = MAV.C_T2 * J_op**2 + MAV.C_T1 * J_op + MAV.C_T0
+        C_Q = MAV.C_Q2 * J_op**2 + MAV.C_Q1 * J_op + MAV.C_Q0
+        n = Omega_op / (2 * np.pi)
+        fp = MAV.rho * n**2 * MAV.D_prop**4 * C_T
+        Mp = -MAV.rho * n**2 * MAV.D_prop**5 * C_Q
+
         fa = 
         [fx, fy, fz] = fg + fa + fp
         self._forces[0] = fx
