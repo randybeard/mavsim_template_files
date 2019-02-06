@@ -2,7 +2,7 @@
 mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
-    
+
 """
 import sys
 sys.path.append('..')
@@ -103,6 +103,7 @@ class mav_dynamics:
         :param delta: np.matrix(delta_a, delta_e, delta_r, delta_t)
         :return: Forces and Moments on the UAV np.matrix(Fx, Fy, Fz, Ml, Mn, Mm)
         """
+        [fx, fy, fz] = fg + fa + fp
         self._forces[0] = fx
         self._forces[1] = fy
         self._forces[2] = fz
