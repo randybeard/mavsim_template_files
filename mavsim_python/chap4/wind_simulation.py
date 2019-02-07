@@ -18,12 +18,24 @@ class wind_simulation:
         # Could pass current Va into the gust function and recalculate A and B matrices.
         Va = 17
 
-        sig_u = 2.12
-        sig_v = sig_u
-        sig_w = 1.4
+        sigu = 2.12
+        sigv = sigu
+        sigw = 1.4
         Lu = 200
         Lv = Lu
         Lw = 500
+
+        au = 0
+        bu = sig_u*np.sqrt(2*Va/Lu)
+        cu = 1
+        du = Va/Lu
+
+        av = sigv*np.sqrt(3*Va/Lv)
+        bv = av * Va/(np.sqrt(3)*Lv)
+        cv = 2*Va/Lv
+        dv = (Va/Lv)**2
+
+        
 
         self._A = np.array([[1 - Ts*c, -Ts*d], [Ts, 1]])
         self._B = np.array([[Ts], [0]])
