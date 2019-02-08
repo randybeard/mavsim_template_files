@@ -90,6 +90,7 @@ class mav_dynamics:
         return x_dot
 
     def _update_velocity_data(self, wind=np.zeros((6,1))):
+
         # compute airspeed
         self._Va =
         # compute angle of attack
@@ -127,10 +128,14 @@ class mav_dynamics:
         C_T = MAV.C_T2 * J_op**2 + MAV.C_T1 * J_op + MAV.C_T0
         C_Q = MAV.C_Q2 * J_op**2 + MAV.C_Q1 * J_op + MAV.C_Q0
         n = Omega_op / (2 * np.pi)
-        fp = MAV.rho * n**2 * MAV.D_prop**4 * C_T
-        Mp = -MAV.rho * n**2 * MAV.D_prop**5 * C_Q
+        fx += MAV.rho * n**2 * MAV.D_prop**4 * C_T
+        Mx += -MAV.rho * n**2 * MAV.D_prop**5 * C_Q
+        fp = np.array([fx,0,0])  # force from propeller
+        Mp = np.array([Mx,0,0])  # torque from propeller
 
-        fa = 
+
+
+        fa =
         [fx, fy, fz] = fg + fa + fp
         self._forces[0] = fx
         self._forces[1] = fy

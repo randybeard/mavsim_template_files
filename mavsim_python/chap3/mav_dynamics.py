@@ -108,10 +108,10 @@ class mav_dynamics:
         n = forces_moments.item(5)
 
         # position kinematics
-        mat_pos = np.array([[e1**2+e0**2-e2**2-e3**2, 2*(e1*e2-e3*e0), 2*(e1*e3+e2*e0)],
+        R_vb = np.array([[e1**2+e0**2-e2**2-e3**2, 2*(e1*e2-e3*e0), 2*(e1*e3+e2*e0)],
                       [2*(e1*e2+e3*e0), e2**2+e0**2-e1**2-e3**2, 2*(e2*e3-e1*e0)],
                       [2*(e1*e3-e2*e0), 2*(e2*e3+e1*e0), e3**2+e0**2-e1**2-e2**2]])
-        pn_dot, pe_dot, pd_dot = mat_pos @ np.array([u, v, w])
+        pn_dot, pe_dot, pd_dot = R_vb @ np.array([u, v, w])
 
         # position dynamics
         vec_pos = np.array([r*v - q*w, p*w - r*u, q*u - p*v])

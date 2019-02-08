@@ -35,11 +35,23 @@ class wind_simulation:
         cv = 2*Va/Lv
         dv = (Va/Lv)**2
 
-        
+        aw = sigw*np.sqrt(3*Va/Lw)
+        bw = aw * Va/(np.sqrt(3)*Lw)
+        cw = 2*Va/Lw
+        dw = (Va/Lw)**2
 
-        self._A = np.array([[1 - Ts*c, -Ts*d], [Ts, 1]])
-        self._B = np.array([[Ts], [0]])
-        self._C = np.array([[a,b]])
+        self._Au = np.array([[1 - Ts*cu, -Ts*du], [Ts, 1]])
+        self._Bu = np.array([[Ts], [0]])
+        self._Cu = np.array([[au, bu]])
+
+        self._Av = np.array([[1 - Ts*cv, -Ts*dv], [Ts, 1]])
+        self._Bv = np.array([[Ts], [0]])
+        self._Cv = np.array([[av, bv]])
+
+        self._Aw = np.array([[1 - Ts*cw, -Ts*dw], [Ts, 1]])
+        self._Bw = np.array([[Ts], [0]])
+        self._Cw = np.array([[aw, bw]])
+
         self._gust_state = np.array([1., 2., 3.])
         self._Ts = Ts
 
@@ -51,8 +63,10 @@ class wind_simulation:
 
     def _gust(self):
         # calculate wind gust using Dryden model.  Gust is defined in the body frame
-        w = np.random.randn()  # zero mean unit variance Gaussian (white noise)
+        w = np.random.randn(3)  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
-        self._gust_state += self._A @ self._gust_state + self._B * w
+        self._gust_state[0] += self._Au @ self._gust_state[0] + self._Bu * w[0]
+        self._gust_state[1] += self._Av @ self._gust_state[1] + self._Bv * w[1]
+        self._gust_state[2] += self._Aw @ self._gust_state[2] + self._Bw * w[2]
         # output the current gust: y[k] = C x[k]
         return self._C @ self._gust_state
