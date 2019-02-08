@@ -10,8 +10,8 @@ import numpy as np
 class wind_simulation:
     def __init__(self, Ts):
         # steady state wind defined in the inertial frame
-        # self._steady_state = np.array([[0., 0., 0.]]).T
-        self._steady_state = np.array([[3., 1., 0.]]).T
+        # self._steady_state = np.array([0., 0., 0.])
+        self._steady_state = np.array([3., 1., 0.])
 
         #   Dryden gust model parameters (pg 56 UAV book)
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
@@ -26,7 +26,7 @@ class wind_simulation:
         Lw = 500
 
         au = 0
-        bu = sig_u*np.sqrt(2*Va/Lu)
+        bu = sigu*np.sqrt(2*Va/Lu)
         cu = 1
         du = Va/Lu
 
@@ -41,16 +41,16 @@ class wind_simulation:
         dw = (Va/Lw)**2
 
         self._Au = np.array([[1 - Ts*cu, -Ts*du], [Ts, 1]])
-        self._Bu = np.array([[Ts], [0]])
-        self._Cu = np.array([[au, bu]])
+        self._Bu = np.array([Ts, 0])
+        self._Cu = np.array([au, bu])
 
         self._Av = np.array([[1 - Ts*cv, -Ts*dv], [Ts, 1]])
-        self._Bv = np.array([[Ts], [0]])
-        self._Cv = np.array([[av, bv]])
+        self._Bv = np.array([Ts, 0])
+        self._Cv = np.array([av, bv])
 
         self._Aw = np.array([[1 - Ts*cw, -Ts*dw], [Ts, 1]])
-        self._Bw = np.array([[Ts], [0]])
-        self._Cw = np.array([[aw, bw]])
+        self._Bw = np.array([Ts, 0])
+        self._Cw = np.array([aw, bw])
 
         self._gust_state = np.array([1., 2., 3.])
         self._Ts = Ts

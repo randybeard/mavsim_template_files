@@ -25,3 +25,15 @@ def Euler2Quaternion(eul):
     e3 = sin(psi2)*cos(tha2)*cos(phi2) - cos(psi2)*sin(tha2)*sin(phi2)
 
     return np.array([e0, e1, e2, e3])
+
+def Quaternion2Rotation(quat):
+    e0 = quat[0]
+    e1 = quat[1]
+    e2 = quat[2]
+    e3 = quat[3]
+
+    R = np.array([[e1**2+e0**2-e2**2-e3**2, 2*(e1*e2-e3*e0), 2*(e1*e3+e2*e0)],
+                  [2*(e1*e2+e3*e0), e2**2+e0**2-e1**2-e3**2, 2*(e2*e3-e1*e0)],
+                  [2*(e1*e3-e2*e0), 2*(e2*e3+e1*e0), e3**2+e0**2-e1**2-e2**2]])
+
+    return R

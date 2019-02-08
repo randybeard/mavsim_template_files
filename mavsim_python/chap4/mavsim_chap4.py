@@ -1,7 +1,7 @@
 """
 mavsimPy
     - Chapter 4 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         12/27/2018 - RWB
         1/17/2019 - RWB
 """
@@ -40,7 +40,7 @@ while sim_time < SIM.end_time:
     delta_t = 0.5
     delta_a = 0.0
     delta_r = 0.005
-    delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T  # transpose to make it a column vector
+    delta = np.array([delta_e, delta_t, delta_a, delta_r])
 
     #-------physical system-------------
     current_wind = wind.update()  # get the new wind vector
@@ -60,7 +60,3 @@ while sim_time < SIM.end_time:
 
 if VIDEO == True:
     video.close()
-
-
-
-
