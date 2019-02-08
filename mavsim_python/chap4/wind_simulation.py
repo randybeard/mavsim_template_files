@@ -10,8 +10,8 @@ import numpy as np
 class wind_simulation:
     def __init__(self, Ts):
         # steady state wind defined in the inertial frame
-        self._steady_state = np.array([[0., 0., 0.]]).T
-        # self.steady_state = np.array([[3., 1., 0.]]).T
+        # self._steady_state = np.array([[0., 0., 0.]]).T
+        self._steady_state = np.array([[3., 1., 0.]]).T
 
         #   Dryden gust model parameters (pg 56 UAV book)
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
@@ -65,8 +65,8 @@ class wind_simulation:
         # calculate wind gust using Dryden model.  Gust is defined in the body frame
         w = np.random.randn(3)  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
-        self._gust_state[0] += self._Au @ self._gust_state[0] + self._Bu * w[0]
-        self._gust_state[1] += self._Av @ self._gust_state[1] + self._Bv * w[1]
-        self._gust_state[2] += self._Aw @ self._gust_state[2] + self._Bw * w[2]
+        self._gust_state += self._Au @ self._gust_state + self._Bu * w[0]
+        self._gust_state += self._Av @ self._gust_state + self._Bv * w[1]
+        self._gust_state += self._Aw @ self._gust_state + self._Bw * w[2]
         # output the current gust: y[k] = C x[k]
         return self._C @ self._gust_state

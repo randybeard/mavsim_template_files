@@ -110,12 +110,16 @@ class mav_dynamics:
         delta_t = delta[3]
 
         e0 = self._state[6]
-        ex = self._state[7]
-        ey = self._state[8]
-        ez = self._state[9]
+        e1 = self._state[7]
+        e2 = self._state[8]
+        e3 = self._state[9]
+
+        R_vb = np.array([[e1**2+e0**2-e2**2-e3**2, 2*(e1*e2-e3*e0), 2*(e1*e3+e2*e0)],
+        [2*(e1*e2+e3*e0), e2**2+e0**2-e1**2-e3**2, 2*(e2*e3-e1*e0)],
+        [2*(e1*e3-e2*e0), 2*(e2*e3+e1*e0), e3**2+e0**2-e1**2-e2**2]])
 
         # gravity
-        fg = MAV.mass * 9.8 * np.array([2*(ex*ez - ey*e0), 2*(ey*ez + ex*e0), ez**2 + e0**2 - ex**2 - ey**2])
+        fg = R_vb @ np.array([0,0, MAV.mass * 9.8])
 
         # propeller thrust and torque
         V_in = MAV.V_max * delta_t
@@ -133,7 +137,7 @@ class mav_dynamics:
         fp = np.array([fx,0,0])  # force from propeller
         Mp = np.array([Mx,0,0])  # torque from propeller
 
-
+        
 
         fa =
         [fx, fy, fz] = fg + fa + fp
