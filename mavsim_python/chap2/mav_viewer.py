@@ -3,6 +3,7 @@ import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
+from tools.tools import Euler2Rotation
 
 from IPython.core.debugger import Pdb
 
@@ -41,7 +42,7 @@ class mav_viewer():
         """
         mav_position = np.array([[state.pn], [state.pe], [-state.h]])  # NED coordinates
         # attitude of spacecraft as a rotation matrix R from body to inertial
-        R = self._Euler2Rotation(state.phi, state.theta, state.psi)
+        R = Euler2Rotation(state.phi, state.theta, state.psi)
         # rotate and translate points defining spacecraft
         rotated_points = self._rotate_points(self.points, R)
         translated_points = self._translate_points(rotated_points, mav_position)
@@ -169,28 +170,3 @@ class mav_viewer():
                          [points[5], points[14], points[15]],   # tail
                          ])
         return mesh
-
-    def _Euler2Rotation(self, phi, theta, psi):
-        """
-        Converts euler angles to rotation matrix (R_b^i, i.e., body to inertial)
-        """
-        # only call sin and cos once for each angle to speed up rendering
-        c_phi = np.cos(phi[0])
-        s_phi = np.sin(phi[0])
-        c_theta = np.cos(theta[0])
-        s_theta = np.sin(theta[0])
-        c_psi = np.cos(psi[0])
-        s_psi = np.sin(psi[0])
-
-        R_roll = np.array([[1, 0, 0],
-                           [0, c_phi, s_phi],
-                           [0, -s_phi, c_phi]])
-        R_pitch = np.array([[c_theta, 0, -s_theta],
-                            [0, 1, 0],
-                            [s_theta, 0, c_theta]])
-        R_yaw = np.array([[c_psi, s_psi, 0],
-                          [-s_psi, c_psi, 0],
-                          [0, 0, 1]])
-
-        R = R_roll @ R_pitch @ R_yaw  # inertial to body (Equation 2.4 in book)
-        return R.T  # transpose to return body to inertial
