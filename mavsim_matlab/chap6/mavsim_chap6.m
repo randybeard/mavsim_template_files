@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% mavSimMatlab 
-%     - Chapter 5 assignment for Beard & McLain, PUP, 2012
+% mavsim_matlab 
+%     - Chapter 6 assignment for Beard & McLain, PUP, 2012
 %     - Update history:  
-%         2/5/2019 - RWB
+%         2/12/2019 - RWB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 run('../parameters/simulation_parameters')  % load SIM: simulation parameters
 run('../parameters/aerosonde_parameters')  % load MAV: aircraft parameters
@@ -14,24 +14,24 @@ addpath('../chap3'); data_view = data_viewer();
 % initialize the video writer
 VIDEO = 0;  % 1 means write video, 0 means don't write video
 if VIDEO==1
-    video=video_writer('chap5_video.avi', SIM.ts_video);
+    video=video_writer('chap6_video.avi', SIM.ts_video);
 end
 
 % initialize elements of the architecture
 addpath('../chap4'); 
 wind = wind_simulation(SIM.ts_simulation);
 mav = mav_dynamics(SIM.ts_simulation, MAV);
+addpath('../chap6');
+ctrl = autopilot(SIM.ts_simulation);
 
-% compute trim
-addpath('../chap5');
-Va = 25;
-gamma = 0*pi/180;
-[trim_state, trim_input] = compute_trim(mav, Va, gamma, MAV);
-mav.state = trim_state;
-delta = trim_input;
+addpath('../message_types');
+commands = msg_autopilot();
+addpath('../tools');
 
-% compute linearized models
-[A_lon, B_lon, A_lat, B_lat] = compute_ss_model(mav, trim_state, trim_input, MAV);
+% arguments to signals are amplitude, frequency, start_time, dc_offset
+Va_command = signals(3, 0.01, 2, 25);
+h_command = signals(10, 0.02, 0, 100);
+chi_command = signals(45*pi/180, 0.05, 5, 0);
 
 % initialize the simulation time
 sim_time = SIM.start_time;
@@ -39,17 +39,22 @@ sim_time = SIM.start_time;
 % main simulation loop
 disp('Type CTRL-C to exit');
 while sim_time < SIM.end_time
-
+    %-------controller-------------
+    estimated_state = mav.true_state;  % uses true states in the control
+    commands.airspeed_command = 25.0;  %Va_command.square(sim_time)
+    commands.course_command = 30 * (2*pi/180);  %chi_command.square(sim_time)
+    commands.altitude_command = 100.0; %h_command.square(sim_time)
+    [delta, commanded_state] = ctrl.update(commands, estimated_state);
+    
     %-------physical system-------------
-    %current_wind = wind.update();
-    current_wind = zeros(6,1);
+    current_wind = wind.update();
     mav.update_state(delta, current_wind, MAV);
     
     %-------update viewer-------------
-    mav_view.update(mav.true_state);  % plot body of MAV
-    data_view.update(mav.true_state,...  % true states
-                     mav.true_state,...  % estimated states
-                     mav.true_state,...  % commmanded states
+    mav_view.update(mav.true_state);       % plot body of MAV
+    data_view.update(mav.true_state,...    % true states
+                     estimated_state,...       % estimated states
+                     commanded_state,...       % commmanded states
                      SIM.ts_simulation); 
     if VIDEO==1
         video.update(sim_time);  

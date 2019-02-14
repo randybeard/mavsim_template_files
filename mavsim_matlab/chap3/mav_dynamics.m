@@ -9,7 +9,7 @@ classdef mav_dynamics < handle
     properties
         ts_simulation
         state
-        msg_true_state
+        true_state
     end
     %--------------------------------
     methods
@@ -18,7 +18,7 @@ classdef mav_dynamics < handle
             self.ts_simulation = Ts; % time step between function calls
             self.state = [MAV.pn0; MAV.pe0; MAV.pd0; MAV.u0; MAV.v0; MAV.w0;...
                 MAV.e0; MAV.e1; MAV.e2; MAV.e3; MAV.p0; MAV.q0; MAV.r0];
-            addpath('../message_types'); self.msg_true_state = msg_state();
+            addpath('../message_types'); self.true_state = msg_state();
         end
         %---------------------------
         function self=update_state(self, forces_moments, MAV)
@@ -35,7 +35,7 @@ classdef mav_dynamics < handle
             
             % normalize the quaternion
             self.state(7:10) = self.state(7:10)/norm(self.state(7:10));
-            self.update_msg_true_state();
+            self.update_true_state();
         end
         %----------------------------
         function xdot = derivatives(self, state, forces_moments, MAV)
@@ -85,17 +85,17 @@ classdef mav_dynamics < handle
                     e0_dot; e1_dot; e2_dot; e3_dot; p_dot; q_dot; r_dot];
         end
         %----------------------------
-        function self=update_msg_true_state(self)
+        function self=update_true_state(self)
              [phi, theta, psi] = Quaternion2Euler(self.state(7:10));
-            self.msg_true_state.pn = self.state(1);  % pn
-            self.msg_true_state.pe = self.state(2);  % pd
-            self.msg_true_state.h = -self.state(3);  % h
-            self.msg_true_state.phi = phi; % phi
-            self.msg_true_state.theta = theta; % theta
-            self.msg_true_state.psi = psi; % psi
-            self.msg_true_state.p = self.state(11); % p
-            self.msg_true_state.q = self.state(12); % q
-            self.msg_true_state.r = self.state(13); % r
+            self.true_state.pn = self.state(1);  % pn
+            self.true_state.pe = self.state(2);  % pd
+            self.true_state.h = -self.state(3);  % h
+            self.true_state.phi = phi; % phi
+            self.true_state.theta = theta; % theta
+            self.true_state.psi = psi; % psi
+            self.true_state.p = self.state(11); % p
+            self.true_state.q = self.state(12); % q
+            self.true_state.r = self.state(13); % r
         end
     end
 end

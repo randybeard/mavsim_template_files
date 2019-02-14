@@ -41,9 +41,9 @@ while sim_time < SIM.end_time
     mav.update_state(forces_moments, MAV);
     
     %-------update viewer-------------
-    mav_view.update(mav.msg_true_state);  % plot body of MAV
-    data_view.update(mav.msg_true_state, mav.msg_true_state, ...
-                     mav.msg_true_state, SIM.ts_simulation); % plot state variables
+    mav_view.update(mav.true_state);  % plot body of MAV
+    data_view.update(mav.true_state, mav.true_state, ...
+                     mav.true_state, SIM.ts_simulation); % plot state variables
     if VIDEO, video.update(sim_time);  end
 
     %-------increment time-------------

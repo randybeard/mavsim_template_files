@@ -13,7 +13,7 @@ classdef mav_dynamics < handle
         alpha
         beta
         wind
-        msg_true_state
+        true_state
     end
     %--------------------------------
     methods
@@ -26,7 +26,7 @@ classdef mav_dynamics < handle
             self.alpha = 
             self.beta = 
             self.wind = 
-            addpath('../message_types'); self.msg_true_state = msg_state();
+            addpath('../message_types'); self.true_state = msg_state();
         end
         %---------------------------
         function self=update_state(self, delta, wind, MAV)
@@ -52,7 +52,7 @@ classdef mav_dynamics < handle
             self.update_velocity_data(wind);
             
             % update the message class for the true state
-            self.update_msg_true_state();
+            self.update_true_state();
         end
         %----------------------------
         function xdot = derivatives(self, state, forces_moments, MAV)
@@ -75,25 +75,25 @@ classdef mav_dynamics < handle
             out = [Force'; Torque'];
         end
         %----------------------------
-        function self=update_msg_true_state(self)
+        function self=update_true_state(self)
             [phi, theta, psi] = Quaternion2Euler(self.state(7:10));
-            self.msg_true_state.pn = self.state(1);  % pn
-            self.msg_true_state.pe = self.state(2);  % pd
-            self.msg_true_state.h = -self.state(3);  % h
-            self.msg_true_state.phi = phi; % phi
-            self.msg_true_state.theta = theta; % theta
-            self.msg_true_state.psi = psi; % psi
-            self.msg_true_state.p = self.state(11); % p
-            self.msg_true_state.q = self.state(12); % q
-            self.msg_true_state.r = self.state(13); % r
-            self.msg_true_state.Va = self.Va;
-            self.msg_true_state.alpha = self.alpha;
-            self.msg_true_state.beta = self.beta;
-            self.msg_true_state.Vg = 
-            self.msg_true_state.chi = 
-            self.msg_true_state.gamma = 
-            self.msg_true_state.wn = self.wind(1);
-            self.msg_true_state.we = self.wind(2);
+            self.true_state.pn = self.state(1);  % pn
+            self.true_state.pe = self.state(2);  % pd
+            self.true_state.h = -self.state(3);  % h
+            self.true_state.phi = phi; % phi
+            self.true_state.theta = theta; % theta
+            self.true_state.psi = psi; % psi
+            self.true_state.p = self.state(11); % p
+            self.true_state.q = self.state(12); % q
+            self.true_state.r = self.state(13); % r
+            self.true_state.Va = self.Va;
+            self.true_state.alpha = self.alpha;
+            self.true_state.beta = self.beta;
+            self.true_state.Vg = 
+            self.true_state.chi = 
+            self.true_state.gamma = 
+            self.true_state.wn = self.wind(1);
+            self.true_state.we = self.wind(2);
         end
     end
 end
