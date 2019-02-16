@@ -29,6 +29,10 @@ class autopilot:
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
                         limit=np.radians(45))
+        self.yaw_damper = transfer_function(
+                        num=np.array([[AP.yaw_damper_kp, 0]]),
+                        den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
+                        Ts=ts_control)
 
         # instantiate lateral controllers
         self.pitch_from_elevator = pd_control_with_rate(

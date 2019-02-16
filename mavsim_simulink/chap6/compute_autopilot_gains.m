@@ -21,6 +21,10 @@ AP.course_ki =
 AP.sideslip_ki = 
 AP.sideslip_kp = 
 
+%----------yaw damper-------------
+AP.yaw_damper_tau_r = 
+AP.yaw_damper_kp = 
+
 %----------pitch loop-------------
 AP.pitch_kp = 
 AP.pitch_kd = 

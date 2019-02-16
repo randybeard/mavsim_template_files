@@ -19,6 +19,10 @@ course_ki =
 sideslip_ki =
 sideslip_kp =
 
+#----------yaw damper-------------
+yaw_damper_tau_r =
+yaw_damper_kp =
+
 #----------pitch loop-------------
 pitch_kp =
 pitch_kd =
