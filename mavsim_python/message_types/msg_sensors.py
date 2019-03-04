@@ -10,12 +10,15 @@ part of mavsim_python
 
 class msg_sensors:
     def __init__(self):
-        self.gyro_x = 0  # gyro_x
-        self.gyro_y = 0  # gyro_y
-        self.gyro_z = 0  # gyro_z
-        self.accel_x = 0  # accel_x
-        self.accel_y = 0  # accel_y
-        self.accel_z = 0  # accel_z
+        self.gyro_x = 0  # gyroscope along body x axis
+        self.gyro_y = 0  # gyroscope along body y axis
+        self.gyro_z = 0  # gyroscope along body z axis
+        self.accel_x = 0  # specific acceleration along body x axis
+        self.accel_y = 0  # specific acceleration along body y axis
+        self.accel_z = 0  # specific acceleration along body z axis
+        self.mag_x = 0  # magnetic field along body x axis
+        self.mag_y = 0  # magnetic field along body y axis
+        self.mag_z = 0  # magnetic field along body z axis
         self.static_pressure = 0  # static pressure
         self.diff_pressure = 0  # differential pressure
         self.gps_n = 0  # gps north
