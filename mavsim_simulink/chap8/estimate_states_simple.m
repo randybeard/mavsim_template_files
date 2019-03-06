@@ -30,7 +30,7 @@
 %            2/20/2018 - TM
 %
 
-function xhat = estimate_states_simple(uu, P)
+function xhat = estimate_states_simple(uu, MAV, SENSOR, SIM)
 
    % rename inputs
    y_gyro_x      = uu(1);
@@ -73,7 +73,7 @@ function xhat = estimate_states_simple(uu, P)
     % initialize persistent variables
     lpf_a = 50;
     lpf_a1 = 20;
-    if t==0,
+    if t==0
         alpha = 
         alpha1 = 
         lpf_gyro_x   = 

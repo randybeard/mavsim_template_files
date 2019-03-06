@@ -205,7 +205,7 @@ class ekf_position:
                 Ci =
                 L =
                 self.P =
-                self.xhat = 
+                self.xhat =
             # update stored GPS signals
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e

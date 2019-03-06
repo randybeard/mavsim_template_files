@@ -14,7 +14,7 @@ from chap3.data_viewer import data_viewer
 from chap4.wind_simulation import wind_simulation
 from chap6.autopilot import autopilot
 from chap7.mav_dynamics import mav_dynamics
-from chap8.observer import observer
+from chap8.observer_full import observer
 from tools.signals import signals
 
 # initialize the visualization
