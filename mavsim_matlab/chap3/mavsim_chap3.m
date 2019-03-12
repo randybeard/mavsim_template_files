@@ -10,13 +10,11 @@ run('../parameters/aerosonde_parameters')  % load MAV: aircraft parameters
 
 % initialize the mav viewer
 addpath('../chap2'); mav_view = mav_viewer();  
-data_view = data_viewer();
+addpath('../chap2'); data_view = data_viewer();
 
 % initialize the video writer
 VIDEO = 0;  % 1 means write video, 0 means don't write video
-if VIDEO==1
-    video=video_writer('chap3_video.avi', SIM.ts_video);
-end
+if VIDEO==1, video=video_writer('chap3_video.avi', SIM.ts_video); end
 
 
 % initialize elements of the architecture
@@ -38,12 +36,14 @@ while sim_time < SIM.end_time
     forces_moments = [fx; fy; fz; Mx; My; Mz];
 
     %-------physical system-------------
-    mav.update_state(forces_moments, MAV);
+    mav.update(forces_moments, MAV);
     
     %-------update viewer-------------
     mav_view.update(mav.true_state);  % plot body of MAV
-    data_view.update(mav.true_state, mav.true_state, ...
-                     mav.true_state, SIM.ts_simulation); % plot state variables
+    data_view.update(mav.true_state,... % true states
+                     mav.true_state,... % estimated states
+                     mav.true_state,... % commmanded states
+                     SIM.ts_simulation); 
     if VIDEO, video.update(sim_time);  end
 
     %-------increment time-------------

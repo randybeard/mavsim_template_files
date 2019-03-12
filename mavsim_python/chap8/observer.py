@@ -11,6 +11,7 @@ import parameters.control_parameters as CTRL
 import parameters.simulation_parameters as SIM
 import parameters.sensor_parameters as SENSOR
 from tools.rotations import Euler2Rotation
+from tools.wrap import wrap
 
 from message_types.msg_state import msg_state
 
@@ -211,13 +212,6 @@ class ekf_position:
             self.gps_e_old = measurement.gps_e
             self.gps_Vg_old = measurement.gps_Vg
             self.gps_course_old = measurement.gps_course
-
-    def wrap(self, chi_c, chi):
-        while chi_c-chi > np.pi:
-            chi_c = chi_c - 2.0 * np.pi
-        while chi_c-chi < -np.pi:
-            chi_c = chi_c + 2.0 * np.pi
-        return chi_c
 
 def jacobian(fun, x, state):
     # compute jacobian of fun with respect to x

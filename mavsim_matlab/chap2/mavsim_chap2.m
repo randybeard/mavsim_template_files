@@ -11,14 +11,12 @@ run('../parameters/simulation_parameters')  % load SIM: simulation parameters
 addpath('../message_types'); state = msg_state();  
 
 % initialize the mav viewer
-%mav_view = mav_viewer();
-mav_view = spacecraft_viewer();
+%addpath('../chap2'); mav_view = mav_viewer();
+addpath('../chap2'); mav_view = spacecraft_viewer();
 
 % initialize the video writer
 VIDEO = 0;  % 1 means write video, 0 means don't write video
-if VIDEO==1
-    video=video_writer('chap2_video.avi', SIM.ts_video);
-end
+if VIDEO==1, video=video_writer('chap2_video.avi', SIM.ts_video); end
 
 % initialize the simulation time
 sim_time = SIM.start_time;

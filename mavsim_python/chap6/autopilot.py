@@ -8,6 +8,8 @@ import sys
 import numpy as np
 sys.path.append('..')
 import parameters.control_parameters as AP
+from tools.transfer_function import transfer_function
+from tools.wrap import wrap
 from chap6.pid_control import pid_control, pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
 

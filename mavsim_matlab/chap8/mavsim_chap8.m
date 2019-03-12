@@ -15,22 +15,15 @@ addpath('../chap3'); data_view = data_viewer();
 
 % initialize the video writer
 VIDEO = 0;  % 1 means write video, 0 means don't write video
-if VIDEO==1
-    video=video_writer('chap8_video.avi', SIM.ts_video);
-end
+if VIDEO==1, video=video_writer('chap8_video.avi', SIM.ts_video); end
 
 % initialize elements of the architecture
-addpath('../chap7');
-mav = mav_dynamics(SIM.ts_simulation, MAV);
-addpath('../chap4'); 
-wind = wind_simulation(SIM.ts_simulation);
-addpath('../chap6');
-ctrl = autopilot(SIM.ts_simulation);
-addpath('../chap8');
-obsv = observer(SIM.ts_simulation);
+addpath('../chap7'); mav = mav_dynamics(SIM.ts_simulation, MAV);
+addpath('../chap4'); wind = wind_simulation(SIM.ts_simulation);
+addpath('../chap6'); ctrl = autopilot(SIM.ts_simulation);
+addpath('../chap8'); obsv = observer(SIM.ts_simulation);
 
-addpath('../message_types');
-commands = msg_autopilot();
+addpath('../message_types'); commands = msg_autopilot();
 addpath('../tools');
 
 % arguments to signals are amplitude, frequency, start_time, dc_offset
@@ -66,15 +59,11 @@ while sim_time < SIM.end_time
                      estimated_state,...       % estimated states
                      commanded_state,...       % commmanded states
                      SIM.ts_simulation); 
-    if VIDEO==1
-        video.update(sim_time);  
-    end
+    if VIDEO==1, video.update(sim_time); end
 
     %-------increment time-------------
     sim_time = sim_time + SIM.ts_simulation;
 end
 
-if VIDEO==1
-    video.close(); 
-end
+if VIDEO==1, video.close(); end
 
