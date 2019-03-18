@@ -21,7 +21,7 @@ class path_viewer():
         self.app = pg.QtGui.QApplication([])  # initialize QT
         self.window = gl.GLViewWidget()  # initialize the view object
         self.window.setWindowTitle('Path Viewer')
-        self.window.setGeometry(0, 0, self.scale, self.scale)  # args: upper_left_x, upper_right_y, width, height
+        self.window.setGeometry(0, 0, 1000, 1000)  # args: upper_left_x, upper_right_y, width, height
         grid = gl.GLGridItem() # make a grid to represent the ground
         grid.scale(self.scale/20, self.scale/20, self.scale/20) # set the size of the grid (distance between each line)
         self.window.addItem(grid) # add grid to viewer
