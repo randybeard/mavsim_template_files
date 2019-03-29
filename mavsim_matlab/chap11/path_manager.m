@@ -42,6 +42,14 @@ classdef path_manager < handle
         end
         %------methods-----------
         function path = update(self, waypoints, radius, state)
+            % this flag is set for one time step to signal a redraw in the
+            % viewer
+            if self.path.flag_path_changed == 1  
+                self.path.flag_path_changed = 0;
+            end
+            if waypoints.num_waypoints == 0
+                waypoints.flag_manager_requests_waypoints = 1;
+            end
             if isequal(waypoints.type, 'straight_line')
                 self.line_manager(waypoints, state);
             elseif isequal(waypoints.type, 'fillet')
