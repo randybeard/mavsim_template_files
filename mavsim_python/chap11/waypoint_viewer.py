@@ -228,13 +228,16 @@ class waypoint_viewer():
     def orbit_points(self, path):
         N = 20
         theta = 0
+        theta_list = [theta]
+        while theta < 2*np.pi:
+            theta += 0.1
+            theta_list.append(theta)
         points = np.array([[path.orbit_center.item(0) + path.orbit_radius,
                             path.orbit_center.item(1),
                             path.orbit_center.item(2)]])
-        for i in range(0, N):
-            theta += 2.0 * np.pi / N
-            new_point = np.array([[path.orbit_center.item(0) + path.orbit_radius * np.cos(theta),
-                                   path.orbit_center.item(1) + path.orbit_radius * np.sin(theta),
+        for angle in theta_list:
+            new_point = np.array([[path.orbit_center.item(0) + path.orbit_radius * np.cos(angle),
+                                   path.orbit_center.item(1) + path.orbit_radius * np.sin(angle),
                                    path.orbit_center.item(2)]])
             points = np.concatenate((points, new_point), axis=0)
         # convert North-East Down to East-North-Up for rendering
@@ -248,7 +251,7 @@ class waypoint_viewer():
         if waypoints.type=='straight_line' or waypoints.type=='fillet':
             points = self.straight_waypoint_points(waypoints)
         elif waypoints.type=='dubins':
-            points = self.dubins_points(waypoints, 0.1)
+            points = self.dubins_points(waypoints, radius, 0.1)
         if not self.plot_initialized:
             waypoint_color = np.tile(blue, (points.shape[0], 1))
             self.waypoints = gl.GLLinePlotItem(pos=points,
@@ -265,89 +268,107 @@ class waypoint_viewer():
         points = R @ waypoints.ned
         return points.T
 
-    def dubins_points(self, waypoints, Del):
-        # points along start circle
-        th1 = np.arctan2(self.dubins_path.p_s.item(1) - self.dubins_path.center_s.item(1),
-                         self.dubins_path.p_s.item(0) - self.dubins_path.center_s.item(0))
-        th1 = th1 % 2*np.pi  # modulo 2*pi
-        th2 = np.arctan2(self.dubins_path.r1.item(1) - self.dubins_path.center_s.item(1),
-                         self.dubins_path.r1.item(0) - self.dubins_path.center_s.item(0))
-        th2 = th2 % 2*np.pi  # modulo 2*pi
-        th = th1
-        theta_list = [th]
-        if self.dubins_path.dir_s > 0:
-            if th1 >= th2:
-                while th < th2 + 2*np.pi:
-                    th += Del
-                    theta_list.append(th)
-            else:
-                while th < th2:
-                    th += Del
-                    theta_list.append(th)
-        else:
-            if th1 <= th2:
-                while th > th2 - 2*np.pi:
-                    th -= Del
-                    theta_list.append(th)
-            else:
-                while th > th2:
-                    th -= Del
-                    theta_list.append(th)
+    def dubins_points(self, waypoints, radius, Del):
+        initialize_points = True
+        for j in range(0, waypoints.num_waypoints-1):
+            self.dubins_path.update(
+                waypoints.ned[:, j:j+1],
+                waypoints.course.item(j),
+                waypoints.ned[:, j+1:j+2],
+                waypoints.course.item(j+1),
+                radius)
 
-        points = np.array([[self.dubins_path.center_s.item(0) + self.dubins_path.radius * np.cos(theta_list[0]),
-                            self.dubins_path.center_s.item(1) + self.dubins_path.radius * np.sin(theta_list[0]),
-                            self.dubins_path.center_s.item(2)]])
-        for i in range(1, theta_list.__len__()-1):
-            new_point = np.array([[self.dubins_path.center_s.item(0) + self.dubins_path.radius * np.cos(theta_list[i]),
-                                   self.dubins_path.center_s.item(1) + self.dubins_path.radius * np.sin(theta_list[i]),
-                                   self.dubins_path.center_s.item(2)]])
-            points = np.concatenate((points, new_point), axis=0)
-
-        # points along straight line
-        sig = 0
-        while sig <= 1:
-            new_point = np.array([[(1 - sig) * self.dubins_path.r1.item(0) + sig * self.dubins_path.r2.item(0),
-                                   (1 - sig) * self.dubins_path.r1.item(1) + sig * self.dubins_path.r2.item(1),
-                                   (1 - sig) * self.dubins_path.r1.item(2) + sig * self.dubins_path.r2.item(2)]])
-            points = np.concatenate((points, new_point), axis=0)
-            sig += Del
-
-        # points along end circle
-        th2 = np.arctan2(self.dubins_path.p_e.item(1) - self.dubins_path.center_e.item(1),
-                         self.dubins_path.p_e.item(0) - self.dubins_path.center_e.item(0))
-        th2 = th2 % 2 * np.pi  # modulo 2*pi
-        th1 = np.arctan2(self.dubins_path.r2.item(1) - self.dubins_path.center_e.item(1),
-                         self.dubins_path.r2.item(0) - self.dubins_path.center_e.item(0))
-        th1 = th1 % 2 * np.pi  # modulo 2*pi
-        th = th1
-        theta_list = [th]
-        if self.dubins_path.dir_e > 0:
-            if th1 >= th2:
-                while th < th2 + 2 * np.pi:
-                    th += Del
-                    theta_list.append(th)
+            # points along start circle
+            th1 = np.arctan2(self.dubins_path.p_s.item(1) - self.dubins_path.center_s.item(1),
+                            self.dubins_path.p_s.item(0) - self.dubins_path.center_s.item(0))
+            th1 = mod(th1)
+            th2 = np.arctan2(self.dubins_path.r1.item(1) - self.dubins_path.center_s.item(1),
+                             self.dubins_path.r1.item(0) - self.dubins_path.center_s.item(0))
+            th2 = mod(th2)
+            th = th1
+            theta_list = [th]
+            if self.dubins_path.dir_s > 0:
+                if th1 >= th2:
+                    while th < th2 + 2*np.pi:
+                        th += Del
+                        theta_list.append(th)
+                else:
+                    while th < th2:
+                        th += Del
+                        theta_list.append(th)
             else:
-                while th < th2:
-                    th += Del
-                    theta_list.append(th)
-        else:
-            if th1 <= th2:
-                while th > th2 - 2 * np.pi:
-                    th -= Del
-                    theta_list.append(th)
-            else:
-                while th > th2:
-                    th -= Del
-                    theta_list.append(th)
-        for i in range(0, theta_list.__len__() - 1):
-            new_point = np.array(
-                [[self.dubins_path.center_e.item(0) + self.dubins_path.radius * np.cos(theta_list[i]),
-                  self.dubins_path.center_e.item(1) + self.dubins_path.radius * np.sin(theta_list[i]),
-                  self.dubins_path.center_e.item(2)]])
-            points = np.concatenate((points, new_point), axis=0)
+                if th1 <= th2:
+                    while th > th2 - 2*np.pi:
+                        th -= Del
+                        theta_list.append(th)
+                else:
+                    while th > th2:
+                        th -= Del
+                        theta_list.append(th)
 
+            if initialize_points:
+                points = np.array([[self.dubins_path.center_s.item(0) + self.dubins_path.radius * np.cos(theta_list[0]),
+                                    self.dubins_path.center_s.item(1) + self.dubins_path.radius * np.sin(theta_list[0]),
+                                    self.dubins_path.center_s.item(2)]])
+                initialize_points = False
+            for angle in theta_list:
+                new_point = np.array([[self.dubins_path.center_s.item(0) + self.dubins_path.radius * np.cos(angle),
+                                       self.dubins_path.center_s.item(1) + self.dubins_path.radius * np.sin(angle),
+                                       self.dubins_path.center_s.item(2)]])
+                points = np.concatenate((points, new_point), axis=0)
+
+            # points along straight line
+            sig = 0
+            while sig <= 1:
+                new_point = np.array([[(1 - sig) * self.dubins_path.r1.item(0) + sig * self.dubins_path.r2.item(0),
+                                       (1 - sig) * self.dubins_path.r1.item(1) + sig * self.dubins_path.r2.item(1),
+                                       (1 - sig) * self.dubins_path.r1.item(2) + sig * self.dubins_path.r2.item(2)]])
+                points = np.concatenate((points, new_point), axis=0)
+                sig += Del
+
+            # points along end circle
+            th2 = np.arctan2(self.dubins_path.p_e.item(1) - self.dubins_path.center_e.item(1),
+                             self.dubins_path.p_e.item(0) - self.dubins_path.center_e.item(0))
+            th2 = mod(th2)
+            th1 = np.arctan2(self.dubins_path.r2.item(1) - self.dubins_path.center_e.item(1),
+                             self.dubins_path.r2.item(0) - self.dubins_path.center_e.item(0))
+            th1 = mod(th1)
+            th = th1
+            theta_list = [th]
+            if self.dubins_path.dir_e > 0:
+                if th1 >= th2:
+                    while th < th2 + 2 * np.pi:
+                        th += Del
+                        theta_list.append(th)
+                else:
+                    while th < th2:
+                        th += Del
+                        theta_list.append(th)
+            else:
+                if th1 <= th2:
+                    while th > th2 - 2 * np.pi:
+                        th -= Del
+                        theta_list.append(th)
+                else:
+                    while th > th2:
+                        th -= Del
+                        theta_list.append(th)
+            for angle in theta_list:
+                new_point = np.array([[self.dubins_path.center_e.item(0) + self.dubins_path.radius * np.cos(angle),
+                                       self.dubins_path.center_e.item(1) + self.dubins_path.radius * np.sin(angle),
+                                       self.dubins_path.center_e.item(2)]])
+                points = np.concatenate((points, new_point), axis=0)
+
+        R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+        points = points @ R.T
         return points
 
-
+def mod(x):
+    # force x to be between 0 and 2*pi
+    while x < 0:
+        x += 2*np.pi
+    while x > 2*np.pi:
+        x -= 2*np.pi
+    return x
 
 

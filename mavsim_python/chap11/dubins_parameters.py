@@ -30,7 +30,7 @@ class dubins_parameters:
         self.n3 = np.inf*np.ones((3,1))  # unit vector defining direction of half plane H3
 
     def update(self, ps, chis, pe, chie, R):
-        ell = np.linalg.norm(ps[0:2] - pe[0:2])
+        ell = np.linalg.norm(ps - pe)
         if ell < 2 * R:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
@@ -51,12 +51,19 @@ class dubins_parameters:
             self.r3 =
             self.n3 =
 
+
 def rotz(theta):
     return np.array([[np.cos(theta), -np.sin(theta), 0],
                     [np.sin(theta), np.cos(theta), 0],
                     [0, 0, 1]])
 
+
 def mod(x):
-    return x % 2*np.pi
+    # make x between 0 and 2*pi
+    while x < 0:
+        x += 2*np.pi
+    while x > 2*np.pi:
+        x -= 2*np.pi
+    return x
 
 
