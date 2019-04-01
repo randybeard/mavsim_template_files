@@ -39,7 +39,7 @@ class path_manager:
                 else:
                     print('Error in Path Manager: Undefined waypoint type.')
             return self.path
-        
+
     def line_manager(self, waypoints, state):
 
     def fillet_manager(self, waypoints, radius, state):

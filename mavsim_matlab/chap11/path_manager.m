@@ -76,9 +76,7 @@ classdef path_manager < handle
                 % if the waypoints have changed, update the waypoint pointer
                 if waypoints.flag_waypoints_changed == 1
                     waypoints.flag_manager_requests_waypoints = 0;
-                    waypoints.flag_waypoints_changed = 0;
-
-                    
+                    waypoints.flag_waypoints_changed = 0; 
                 end
                 
             end
