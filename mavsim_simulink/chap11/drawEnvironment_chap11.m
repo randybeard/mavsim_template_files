@@ -24,12 +24,14 @@ function drawEnvironment_chap11(uu,PLAN)
 
 
     % define persistent variables 
-    persistent aircraft_handle;  % figure handle for MAV
-    persistent path_handle;      % handle for straight-line or orbit path
-    persistent waypoint_handle;  % handle for waypoints
+    persistent aircraft_handle  % figure handle for MAV
+    persistent path_handle      % handle for straight-line or orbit path
+    persistent waypoint_handle  % handle for waypoints
     persistent Faces
     persistent Vertices
     persistent facecolors
+    persistent old_path  % used to signal a path re-draw
+    persistent old_waypoints % used to signal a waypoint re-draw
 
     S = 2000; % plot size
     
@@ -54,15 +56,22 @@ function drawEnvironment_chap11(uu,PLAN)
         view(-40,70)  % set the view angle for figure
         grid on
         
+        old_waypoints = waypoints;
+        old_path = path;
         
     % at every other time step, redraw MAV
     else 
         drawBody(Vertices,Faces,facecolors,...
                      pn,pe,pd,phi,theta,psi,...
                      aircraft_handle);
-        drawWaypoints(waypoints, PLAN.R_min, waypoint_handle);
-        drawPath(path, S, path_handle);
-
+        if norm(waypoints-old_waypoints) > 0.1
+            drawWaypoints(waypoints, PLAN.R_min, waypoint_handle);
+            old_waypoints = waypoints;
+        end
+        if norm(path - old_path) > 0.1
+            drawPath(path, S, path_handle);
+            old_path = path;
+        end
     end
 end
 
