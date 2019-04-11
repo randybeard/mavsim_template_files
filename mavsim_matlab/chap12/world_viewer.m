@@ -3,7 +3,7 @@
 % mavsim_matlab 
 %     - Beard & McLain, PUP, 2012
 %     - Last updated:  
-%         4/2/2019 - RWB
+%         4/10/2019 - RWB
 classdef world_viewer < handle
     properties
         mav_handle
@@ -45,7 +45,7 @@ classdef world_viewer < handle
                 xlabel('East')
                 ylabel('North')
                 zlabel('-Down')
-                axis([-S/5,S,-S/5,S,0,3*map.building_max_height]);
+                axis([-S/5,S+S/5,-S/5,S+S/5,0,3*map.building_max_height]);
                 view(-40,70)  % set the view angle for figure
                 axis square;
                 grid on
@@ -236,10 +236,63 @@ classdef world_viewer < handle
             end
     
             if isempty(self.waypoint_handle)
-                self.waypoint_handle = plot3(YY,XX,-ZZ,'b');
+                self.waypoint_handle = plot3(YY,XX,-ZZ,'b', 'LineWidth', 2);
             else
                 set(self.waypoint_handle,'XData', YY, 'YData', XX, 'ZData', -ZZ);
                 drawnow
+            end
+        end 
+        %---------------------------
+        function self = drawNonSmoothedWaypoints(self, waypoints, radius)
+            if isequal(waypoints.type, 'straight_line')...
+                    || isequal(waypoints.type, 'fillet')
+                XX = [waypoints.ned(1,:)];
+                YY = [waypoints.ned(2,:)];
+                ZZ = [waypoints.ned(3,:)];
+            elseif isequal(waypoints.type, 'dubins')
+                XX = [];
+                YY = [];
+                for i=2:waypoints.num_waypoints
+                    self.dubins_path.update(...
+                        waypoints.ned(:,i-1),...
+                        waypoints.course(i-1),...
+                        waypoints.ned(:,i),...
+                        waypoints.course(i),...
+                        radius...
+                        );
+                    [tmpX, tmpY] = self.pointsAlongDubinsPath(0.1);
+                    XX = [XX; tmpX];
+                    YY = [YY; tmpY];     
+                end
+                ZZ = waypoints.ned(3,i)*ones(size(XX));
+            end
+            plot3(YY,XX,-ZZ,'r', 'LineWidth', 2);
+        end 
+        %---------------------------
+        function self = drawTree(self, tree, radius)
+            if isequal(tree.type, 'straight_line')...
+                    || isequal(tree.type, 'fillet')
+                for i = 2:tree.num_waypoints
+                    parent = tree.parent(i);
+                    XX = [tree.ned(1,i), tree.ned(1,parent)];
+                    YY = [tree.ned(2,i), tree.ned(2,parent)];
+                    ZZ = [tree.ned(3,i), tree.ned(3,parent)];
+                    plot3(YY, XX, -ZZ, 'm')
+                end
+            elseif isequal(tree.type, 'dubins')
+                for i=2:tree.num_waypoints
+                    parent = tree.parent(i);
+                    self.dubins_path.update(...
+                        tree.ned(:,parent),...
+                        tree.course(parent),...
+                        tree.ned(:,i),...
+                        tree.course(i),...
+                        radius...
+                        );
+                    [XX, YY] = self.pointsAlongDubinsPath(0.1);   
+                    ZZ = tree.ned(3,i)*ones(size(XX));
+                    plot3(YY, XX, -ZZ,'c')
+                end
             end
         end 
         %---------------------------
@@ -313,7 +366,7 @@ classdef world_viewer < handle
                       map.building_north(i),...
                       map.building_east(j),...
                       map.building_width,...
-                      map.building_height(j,i));
+                      map.building_height(i, j));
                     V = [V; Vtemp];
                     Ftemp = Ftemp + count;
                     F = [F; Ftemp];

@@ -1,8 +1,8 @@
-% msgState
+% msg_state
 %   - message type for state to be passed between different blocks in
 %   architecture
 %
-% mavMatSim 
+% mavsim_matlab 
 %     - Beard & McLain, PUP, 2012
 %     - Update history:  
 %         12/19/2018 - RWB

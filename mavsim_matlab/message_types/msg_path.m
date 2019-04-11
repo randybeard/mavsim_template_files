@@ -8,20 +8,22 @@
 classdef msg_path
    %--------------------------------
     properties
-        flag
+        type
         airspeed
         line_origin
         line_direction
         orbit_center
         orbit_radius
         orbit_direction
+        flag_path_changed
     end
     %--------------------------------
     methods
         %------constructor-----------
         function self = msg_path()
             % flag can equal 'line' or 'orbit
-            self.flag = 'line';
+            self.type = 'line';
+            %self.type = 'orbit';
             % the airspeed that is commanded along the path
             self.airspeed = 25;
             % the origin of the line segement (r)
@@ -33,7 +35,10 @@ classdef msg_path
             % radius of the orbit (rho)
             self.orbit_radius = 50;
             % orbit direction: 'CW'==clockwise, 'CCW'==counter clockwise
-            self.orbit_direction = 'CW';        
+            self.orbit_direction = 'CW';    
+            % flag that indicates that the path has changed.  Used to
+            % signal a redraw in the viewer
+            self.flag_path_changed = 0;
         end
     end
 end

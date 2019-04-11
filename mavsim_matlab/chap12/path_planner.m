@@ -8,6 +8,8 @@ classdef path_planner < handle
    %--------------------------------
     properties
         waypoints
+        rrt_straight_line
+        rrt_dubins
     end
     %--------------------------------
     methods
@@ -16,81 +18,63 @@ classdef path_planner < handle
             % waypoints definition
             addpath('../message_types'); 
             self.waypoints = msg_waypoints(); 
+            addpath('../chap12')
+            self.rrt_straight_line = rrt_straight_line();
+            self.rrt_dubins = rrt_dubins();
         end
         %------methods-----------
-        function waypoints = update(self, map, state)
+        function waypoints = update(self, map, state, radius)
             % this flag is set for one time step to signal a redraw in the
             % viewer
             %planner_flag = 1;  % return simple waypoint path
-            planner_flag = 2;  % return dubins waypoint path
+            %planner_flag = 2;  % return dubins waypoint path
             %planner_flag = 3;  % plan path through city using straight-line RRT
-            %planner_flag = 4;  % plan path through city using dubins RRT
+            planner_flag = 4;  % plan path through city using dubins RRT
+            disp('planning...');
             if planner_flag == 1
+                Va = 25;
                 self.waypoints.type = 'fillet';
-                self.waypoints.num_waypoints = 4;
-                Va = 25;
-                self.waypoints.ned(:, 1:self.waypoints.num_waypoints) = ...
-                    [0,   0,   -100;...
-                     1000, 0,   -100;...
-                     0,   1000, -100;...
-                     1000, 1000, -100]';
-                self.waypoints.airspeed(1:self.waypoints.num_waypoints) = ...
-                    [Va, Va, Va, Va];
+                self.waypoints.add([0; 0; -100], Va, inf, inf, 0, 0);
+                self.waypoints.add([1000; 0; -100], Va, inf, inf, 0, 0);
+                self.waypoints.add([0; 1000; -100], Va, inf, inf, 0, 0);
+                self.waypoints.add([1000; 1000; -100], Va, inf, inf, 0, 0);
             elseif planner_flag == 2
-                self.waypoints.type = 'dubins';
-                self.waypoints.num_waypoints = 4;
                 Va = 25;
-                self.waypoints.ned(:, 1:self.waypoints.num_waypoints) = ...
-                    [0,   0,   -100;...
-                     1000, 0,   -100;...
-                     0,   1000, -100;...
-                     1000, 1000, -100]';
-                self.waypoints.airspeed(1:self.waypoints.num_waypoints) = ...
-                    [Va, Va, Va, Va];
-                self.waypoints.course = ...
-                    [0, 45*pi/180, 45*pi/180, -135*pi/180];
+                self.waypoints.type = 'dubins';
+                self.waypoints.add([0; 0; -100], Va, 0, inf, 0, 0);
+                self.waypoints.add([1000; 0; -100], Va, 45*pi/180, inf, 0, 0);
+                self.waypoints.add([0; 1000; -100], Va, 45*pi/180, inf, 0, 0);
+                self.waypoints.add([1000; 1000; -100], Va, -135*pi/180, inf, 0, 0);
             elseif planner_flag == 3
-%                                % current configuration
-%               wpp_start = [pn, pe, -h, chi, PLAN.Va0];
-%               % desired end waypoint
-%               if norm([pn; pe; -h]-[map.width; map.width; -h])<map.width/2
-%                   wpp_end = [0, 0, -h, chi, PLAN.Va0];
-%               else
-%                   wpp_end = [map.width, map.width, -h, chi, PLAN.Va0];
-%               end
-%               waypoints = planRRT(wpp_start, wpp_end, map);
-%               num_waypoints = size(waypoints,1);
-%               wpp = [];
-%               for i=1:num_waypoints
-%                   wpp = [...
-%                             wpp;...
-%                             waypoints(i,1), waypoints(i,2), waypoints(i,3), waypoints(i,4), PLAN.Va0;...
-%                         ];
-%               end
+                Va = 25;
+                % start configuration is current configuration
+                ps = [state.pn; state.pe; -state.h];
+                % desired end configuration
+                if norm(ps -[map.city_width; map.city_width; -state.h]) < map.city_width/2
+                    pe = [0; 0; -state.h];
+                else
+                    pe = [map.city_width; map.city_width; -state.h];
+                end
+                self.waypoints.type = 'fillet';
+                self.waypoints = self.rrt_straight_line.update(ps, pe, Va, map, radius);
             elseif planner_flag == 4
-%                                % current configuration
-%               wpp_start = [pn, pe, -h, chi, PLAN.Va0];
-%               % desired end waypoint
-%               if norm([pn; pe; -h]-[map.width; map.width; -h])<map.width/2
-%                   wpp_end = [0, 0, -h, 0, PLAN.Va0];
-%               else
-%                   wpp_end = [map.width, map.width, -h, 0, PLAN.Va0];
-%               end
-%               waypoints = planRRTDubins(wpp_start, wpp_end, PLAN.R_min, map);
-%               num_waypoints = size(waypoints,1);
-%               wpp = [];
-%               for i=1:num_waypoints
-%                   wpp = [...
-%                             wpp;...
-%                             waypoints(i,1), waypoints(i,2), waypoints(i,3), waypoints(i,4), PLAN.Va0;...
-%                         ];
-%               end
-% 
+                Va = 25;
+                % start pose is current pose
+                start_pose = [state.pn; state.pe; -state.h; state.chi];
+                % desired end pose
+                if norm(start_pose(1:3) -[map.city_width; map.city_width; -state.h]) < map.city_width/2
+                    end_pose = [0; 0; -state.h; 0];
+                else
+                    end_pose = [map.city_width; map.city_width; -state.h; 0];
+                end
+                self.waypoints.type = 'dubins';
+                self.waypoints = self.rrt_dubins.update(start_pose, end_pose, Va, map, radius);
             else
                 disp('Error in Path Planner: Undefined planner type.')
             end
             % return the planned waypoints
             waypoints = self.waypoints;
+            disp('... done planning');
         end
     end
 end
