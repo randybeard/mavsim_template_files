@@ -1,0 +1,7 @@
+numpy==1.16.2
+opencv-python==4.1.0.25
+Pillow==6.0.0
+PyOpenGL==3.1.0
+PyQt5==5.12.1
+PyQt5-sip==4.19.15
+pyqtgraph==0.10.0
